@@ -98,4 +98,4 @@ This project is licensed under the MIT License. See the [LICENSE](LICENSE) file 
 
 
 ## הודעה בשביל עצמי
-להוסיך את השימוש בסקריפט פייתו שמכין את קובץ הTags.yaml לפי חשבון aws בלייב 
+להוסיך את השימוש בסקריפט פייתון שמכין את קובץ הTags.yaml לפי המצב בחשבון aws של ה-user
