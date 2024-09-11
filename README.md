@@ -95,3 +95,7 @@ To contribute to the project:
 
 This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
 
+
+
+## הודעה בשביל עצמי
+להוסיך את השימוש בסקריפט פייתו שמכין את קובץ הTags.yaml לפי חשבון aws בלייב 
