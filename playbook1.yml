@@ -1,0 +1,67 @@
+---
+- name: Install services based on tags
+  hosts: ec2_instances
+  gather_facts: no
+  vars_files:
+    - ~/my_ansible_project/tags.yml
+
+  tasks:
+    - name: Read tags file
+      set_fact:
+        tags_data: "{{ lookup('file', '~/my_ansible_project/tags.yml') | from_yaml }}"
+
+    - name: Find tags for current instance
+      set_fact:
+        instance_tags: >-
+          {{
+            tags_data |
+            selectattr('InstanceId', 'equalto', inventory_hostname) |
+            map(attribute='Tags') |
+            first |
+            items2dict(key_name='Key', value_name='Value') |
+            default({})
+          }}
+
+    - name: Extract service and version from tags
+      set_fact:
+        service: "{{ instance_tags['Service'] | default('none') }}"
+        version: "{{ instance_tags['Version'] | default('latest') }}"
+
+    - name: Debug extracted service and version
+      debug:
+        msg: "Service: {{ service }}, Version: {{ version }}"
+
+    - name: Update apt cache
+      ansible.builtin.apt:
+        update_cache: yes
+      become: true
+
+    - name: Install MySQL package if tagged
+      ansible.builtin.apt:
+        name: "{{ 'mysql-server=%s' % version if version != 'latest' else 'mysql-server' }}"
+        state: present
+      become: true
+      when: service == 'mysql'
+
+    - name: Install Nginx package if tagged
+      ansible.builtin.apt:
+        name: "{{ 'nginx=%s' % version if version != 'latest' else 'nginx' }}"
+        state: present
+      become: true
+      when: service == 'nginx'
+
+    - name: Ensure MySQL service is started
+      ansible.builtin.systemd:
+        name: mysql
+        state: started
+      when: service == 'mysql'
+      become: true
+
+    - name: Ensure Nginx service is started
+      ansible.builtin.systemd:
+        name: nginx
+        state: started
+      when: service == 'nginx'
+      become: true
+
+
